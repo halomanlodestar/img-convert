@@ -1,6 +1,7 @@
 use std::fs;
 
 use config::Config;
+use convert_img::count_items;
 mod config;
 mod convert_img;
 
@@ -32,5 +33,12 @@ fn main() {
     }
 
     // Read Source directory
-    convert_img::convert(&src, &dest).unwrap_or_else(|err| eprintln!("Unable to Convert: {err}"));
+    let total_items = count_items(&src);
+
+    if let Ok(count) = total_items {
+        println!("Converting {count} items");
+        let mut converted: usize = 0;
+        convert_img::convert(&src, &dest, &mut converted, count).unwrap_or_else(|err| eprintln!("Unable to Convert: {err}"));
+    }
+
 }

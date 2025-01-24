@@ -1,10 +1,28 @@
 use image::GenericImageView;
 use image::ImageReader;
+use std::error::Error;
 use std::fs;
 use std::path::{Path, PathBuf};
 use webp::Encoder;
 
-pub fn convert(src: &PathBuf, dest: &PathBuf) -> Result<(), Box<dyn std::error::Error>> {
+pub fn count_items(src: &PathBuf) -> Result<usize, Box<dyn Error>> {
+    let dir = fs::read_dir(&src).map_err(|e| e)?;
+
+    let mut count: usize = 0;
+
+    dir.into_iter().map(|entry| entry.unwrap()).
+    for_each(|entry| {
+        if entry.metadata().unwrap().is_dir() {
+            count += count_items(&entry.path()).unwrap();
+        } else {
+            count += 1;
+        }
+    });
+
+    return Ok(count);
+}
+
+pub fn convert(src: &PathBuf, dest: &PathBuf, converted: &mut usize, total_items_count: usize) -> Result<(), Box<dyn Error>> {
     let dir = fs::read_dir(&src).map_err(|e| e)?;
 
     dir.into_iter()
@@ -12,13 +30,15 @@ pub fn convert(src: &PathBuf, dest: &PathBuf) -> Result<(), Box<dyn std::error::
         .for_each(|entry| {
             if entry.metadata().unwrap().is_dir() {
                 println!("Crawling in dir: {:?}", entry.file_name());
-                convert(&entry.path(), &dest.join(entry.file_name())).ok();
+                convert(&entry.path(), &dest.join(entry.file_name()), converted, total_items_count).ok();
             } else {
                 // println!("\tConverting file: {:?} {:?}", entry.path(), &dest)
+                // Convert If Image files else recurse deeper
                 if let Err(err) = convert_to_webp(&(entry.path()), dest, 80) {
                     println!("Error Occured While converting: {:?} {err}", entry.file_name());
                 } else {
-                    println!("Converted {:?}", entry.file_name())
+                    *converted += 1;
+                    println!("Converted {:?}/{:?} items", converted, total_items_count)
                 };
             }
         });
