@@ -1,7 +1,9 @@
-use image::GenericImageView;
-use image::ImageReader;
+use image::{GenericImageView, ImageReader};
+use std::collections::HashMap;
 use std::error::Error;
+use std::ffi::OsString;
 use std::fs;
+use std::io::{stdout, Write};
 use std::path::{Path, PathBuf};
 use webp::Encoder;
 
@@ -10,35 +12,54 @@ pub fn count_items(src: &PathBuf) -> Result<usize, Box<dyn Error>> {
 
     let mut count: usize = 0;
 
-    dir.into_iter().map(|entry| entry.unwrap()).
-    for_each(|entry| {
-        if entry.metadata().unwrap().is_dir() {
-            count += count_items(&entry.path()).unwrap();
-        } else {
-            count += 1;
-        }
-    });
+    dir.into_iter()
+        .map(|entry| entry.unwrap())
+        .for_each(|entry| {
+            if entry.metadata().unwrap().is_dir() {
+                count += count_items(&entry.path()).unwrap();
+            } else {
+                count += 1;
+            }
+        });
 
     return Ok(count);
 }
 
-pub fn convert(src: &PathBuf, dest: &PathBuf, converted: &mut usize, total_items_count: usize) -> Result<(), Box<dyn Error>> {
+pub fn convert(
+    src: &PathBuf,
+    dest: &PathBuf,
+    converted: &mut usize,
+    failed: &mut HashMap<OsString, Box<dyn Error>>,
+    total_items_count: usize,
+) -> Result<(), Box<dyn Error>> {
     let dir = fs::read_dir(&src).map_err(|e| e)?;
 
     dir.into_iter()
         .map(|entry| entry.unwrap())
         .for_each(|entry| {
             if entry.metadata().unwrap().is_dir() {
-                println!("Crawling in dir: {:?}", entry.file_name());
-                convert(&entry.path(), &dest.join(entry.file_name()), converted, total_items_count).ok();
+                // println!("Crawling in dir: {:?}", entry.file_name());
+                convert(
+                    &entry.path(),
+                    &dest.join(entry.file_name()),
+                    converted,
+                    failed,
+                    total_items_count,
+                )
+                .ok();
             } else {
                 // println!("\tConverting file: {:?} {:?}", entry.path(), &dest)
                 // Convert If Image files else recurse deeper
                 if let Err(err) = convert_to_webp(&(entry.path()), dest, 80) {
-                    println!("Error Occured While converting: {:?} {err}", entry.file_name());
+                    // println!(
+                    //     "Error Occured While converting: {:?} {err}",
+                    //     entry.file_name()
+                    // );
+                    failed.insert(entry.file_name(), err);
                 } else {
                     *converted += 1;
-                    println!("Converted {:?}/{:?} items", converted, total_items_count)
+                    print!("\rConverted {}/{} items", converted, total_items_count);
+                    stdout().flush().unwrap();
                 };
             }
         });
