@@ -1,9 +1,10 @@
+mod config;
+mod convert_img;
+
 use anyhow::Error;
 use config::Config;
 use convert_img::count_items;
 use std::{collections::HashMap, ffi::OsString, fs};
-mod config;
-mod convert_img;
 
 // Steps
 // 1. Parse the command-line arguments
@@ -42,7 +43,7 @@ fn main() {
         println!("Failed {}", failed.keys().len());
 
         failed.into_iter().for_each(|item| {
-            println!("{:?} -> {:?}", item.0, item.1);
+            println!("{:#}", item.1);
         });
     }
 }

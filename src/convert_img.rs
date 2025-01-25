@@ -1,10 +1,6 @@
 use image::{GenericImageView, ImageReader};
 use std::{
-    fs,
-    ffi::OsString,
-    io::{stdout, Write},
-    collections::HashMap,
-    path::{Path, PathBuf}
+    collections::HashMap, ffi::OsString, fs::{self}, io::{stdout, Write}, path::{Path, PathBuf}
 };
 use webp::Encoder;
 use anyhow::{Context, Error, Result};
@@ -15,14 +11,20 @@ pub fn count_items(src: &PathBuf) -> Result<usize> {
     let mut count: usize = 0;
 
     dir.into_iter()
-        .map(|entry| entry.unwrap())
-        .for_each(|entry| {
-            if entry.metadata().unwrap().is_dir() {
-                count += count_items(&entry.path()).unwrap();
+        .try_for_each::<_, Result<()>>(|entry| {
+            // if entry.is_ok_and(|entry| entry.metadata().is_ok_and(|metadata| metadata.is_dir())) {
+            //     count += count_items(&entry.path()).unwrap();
+            // } else {
+            //     count += 1;
+            // }
+            let entry = entry?;
+            if entry.metadata()?.is_dir() {
+                count += count_items(&entry.path())?;
             } else {
                 count += 1;
             }
-        });
+            return Ok(());
+        })?;
 
     return Ok(count);
 }
@@ -37,18 +39,18 @@ pub fn convert(
     let dir = fs::read_dir(&src).map_err(|e| e)?;
 
     dir.into_iter()
-        .map(|entry| entry.unwrap())
-        .for_each(|entry| {
+        .try_for_each::<_, Result<()>>(|entry| {
+            let entry = entry?;
             if entry.metadata().is_ok_and(|meta| meta.is_dir()) {
                 // println!("Crawling in dir: {:?}", entry.file_name());
                 convert(
-                    &entry.path(),
+                    &(entry.path()),
                     &dest.join(entry.file_name()),
                     converted,
                     failed,
                     total_items_count,
-                )
-                .ok();
+                )?;
+
             } else {
                 // println!("\tConverting file: {:?} {:?}", entry.path(), &dest)
                 // Convert If Image files else recurse deeper
@@ -61,10 +63,12 @@ pub fn convert(
                 } else {
                     *converted += 1;
                     print!("\rConverted {}/{} items", converted, total_items_count);
-                    stdout().flush().ok();
+                    stdout().flush()?;
                 };
             }
-        });
+
+            return Ok(());
+        })?;
 
     return Ok(());
 }
