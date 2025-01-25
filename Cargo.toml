@@ -4,6 +4,7 @@ version = "1.0.0"
 edition = "2021"
 
 [dependencies]
+anyhow = "1.0.95"
 clap = { version = "4.5.27", features = ["derive"] }
 image = "0.25.5"
 webp = "0.3.0"
