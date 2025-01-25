@@ -1,9 +1,10 @@
-use std::{collections::HashMap, error::Error, ffi::OsString, fs};
-
-use config::Config;
-use convert_img::count_items;
 mod config;
 mod convert_img;
+
+use anyhow::Error;
+use config::Config;
+use convert_img::count_items;
+use std::{collections::HashMap, ffi::OsString, fs};
 
 // Steps
 // 1. Parse the command-line arguments
@@ -31,9 +32,9 @@ fn main() {
 
     if let Ok(count) = total_items {
         println!("Converting {count} items");
-        
+
         let mut converted: usize = 0;
-        let mut failed: HashMap<OsString, Box<dyn Error>> = HashMap::new();
+        let mut failed: HashMap<OsString, Error> = HashMap::new();
 
         convert_img::convert(&src, &dest, &mut converted, &mut failed, count)
             .unwrap_or_else(|err| eprintln!("Unable to Convert: {err}"));
@@ -42,7 +43,7 @@ fn main() {
         println!("Failed {}", failed.keys().len());
 
         failed.into_iter().for_each(|item| {
-            println!("{:?} -> {:?}", item.0, item.1);
+            println!("{:#}", item.1);
         });
     }
 }

@@ -421,6 +421,7 @@ dependencies = [
 name = "img-convert"
 version = "1.0.0"
 dependencies = [
+ "anyhow",
  "clap",
  "image",
  "webp",

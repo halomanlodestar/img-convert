@@ -21,7 +21,7 @@ impl Config {
 
         return Self {
             src: args.src,
-            dest: args.dest
-        }
+            dest: args.dest,
+        };
     }
 }
