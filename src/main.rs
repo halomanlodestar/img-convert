@@ -35,8 +35,9 @@ fn main() {
 
         let mut converted: usize = 0;
         let mut failed: HashMap<OsString, Error> = HashMap::new();
+        let mut skipped: usize = 0;
 
-        convert_img::convert(&src, &dest, &mut converted, &mut failed, count)
+        convert_img::convert(&src, &dest, &mut converted, &mut failed, &mut skipped, count)
             .unwrap_or_else(|err| eprintln!("Unable to Convert: {err}"));
 
         println!("\nSuccessfully Converted {}/{} images ✅", converted, count);

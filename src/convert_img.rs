@@ -2,7 +2,7 @@ use anyhow::{Context, Error, Result};
 use image::{GenericImageView, ImageReader};
 use std::{
     collections::HashMap,
-    ffi::OsString,
+    ffi::{OsStr, OsString},
     fs::{self},
     io::{stdout, Write},
     path::{Path, PathBuf},
@@ -37,6 +37,7 @@ pub fn convert(
     dest: &PathBuf,
     converted: &mut usize,
     failed: &mut HashMap<OsString, Error>,
+    skipped: &mut usize,
     total_items_count: usize,
 ) -> Result<()> {
     let dir = fs::read_dir(&src).map_err(|e| e)?;
@@ -50,12 +51,21 @@ pub fn convert(
                 &dest.join(entry.file_name()),
                 converted,
                 failed,
+                skipped,
                 total_items_count,
             )?;
         } else {
             // println!("\tConverting file: {:?} {:?}", entry.path(), &dest)
+
+            // Skip .webp files
+            let path = entry.path();
+            let ext = path.extension().and_then(OsStr::to_str);
+
+            if ext.is_some_and(|ext| ext.eq("webp")) {
+                *skipped += 1;
+            }
             // Convert If Image files else recurse deeper
-            if let Err(err) = convert_to_webp(&(entry.path()), dest, 80) {
+            else if let Err(err) = convert_to_webp(&path, dest, 80) {
                 // println!(
                 //     "Error Occured While converting: {:?} {err}",
                 //     entry.file_name()
@@ -63,9 +73,10 @@ pub fn convert(
                 failed.insert(entry.file_name(), err);
             } else {
                 *converted += 1;
-                print!("\rConverted {}/{} items", converted, total_items_count);
-                stdout().flush()?;
             };
+
+            print!("\rConverted {}/{} items, Failed {}, Skipped {}", converted, total_items_count, failed.len(), skipped);
+            stdout().flush()?;
         }
 
         return Ok(());
