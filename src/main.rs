@@ -35,12 +35,16 @@ fn main() {
 
     if let Ok(count) = total_items {
         println!("Converting {count} items");
+        
         let mut converted: usize = 0;
         let mut failed: HashMap<OsString, Box<dyn Error>> = HashMap::new();
+
         convert_img::convert(&src, &dest, &mut converted, &mut failed, count)
             .unwrap_or_else(|err| eprintln!("Unable to Convert: {err}"));
+
         println!("\nSuccessfully Converted {}/{} images ✅", converted, count);
         println!("Failed {}", failed.keys().len());
+
         failed.into_iter().for_each(|item| {
             println!("{:?} -> {:?}", item.0, item.1);
         });
