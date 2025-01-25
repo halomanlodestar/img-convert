@@ -16,11 +16,7 @@ mod convert_img;
 // 8. Exit the program
 
 fn main() {
-    let args: Vec<String> = std::env::args().collect();
-    let config = Config::new(&args).unwrap_or_else(|err| {
-        eprintln!("Problem parsing arguments: {}", err);
-        std::process::exit(1);
-    });
+    let config = Config::new();
 
     let src = fs::canonicalize(config.src).expect("Unable to read source directory");
     let dest = fs::canonicalize(config.dest).expect("Unable to read destination directory");
@@ -35,12 +31,16 @@ fn main() {
 
     if let Ok(count) = total_items {
         println!("Converting {count} items");
+        
         let mut converted: usize = 0;
         let mut failed: HashMap<OsString, Box<dyn Error>> = HashMap::new();
+
         convert_img::convert(&src, &dest, &mut converted, &mut failed, count)
             .unwrap_or_else(|err| eprintln!("Unable to Convert: {err}"));
+
         println!("\nSuccessfully Converted {}/{} images ✅", converted, count);
         println!("Failed {}", failed.keys().len());
+
         failed.into_iter().for_each(|item| {
             println!("{:?} -> {:?}", item.0, item.1);
         });
