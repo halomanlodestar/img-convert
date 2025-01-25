@@ -1,15 +1,27 @@
+use clap::Parser;
+
+#[derive(Parser, Debug)]
+#[command(version, about, long_about = None)]
+struct Args {
+    #[arg(short, long)]
+    src: String,
+
+    #[arg(short, long)]
+    dest: String,
+}
+
 pub struct Config {
     pub src: String,
     pub dest: String,
 }
 
 impl Config {
-    pub fn new(args: &[String]) -> Result<Config, &'static str> {
-        if args.len() < 3 {
-            return Err("Not enough arguments");
+    pub fn new() -> Config {
+        let args = Args::parse();
+
+        return Self {
+            src: args.src,
+            dest: args.dest
         }
-        let src = args[1].clone();
-        let dest = args[2].clone();
-        Ok(Config { src, dest })
     }
 }

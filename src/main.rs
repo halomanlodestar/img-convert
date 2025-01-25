@@ -16,11 +16,7 @@ mod convert_img;
 // 8. Exit the program
 
 fn main() {
-    let args: Vec<String> = std::env::args().collect();
-    let config = Config::new(&args).unwrap_or_else(|err| {
-        eprintln!("Problem parsing arguments: {}", err);
-        std::process::exit(1);
-    });
+    let config = Config::new();
 
     let src = fs::canonicalize(config.src).expect("Unable to read source directory");
     let dest = fs::canonicalize(config.dest).expect("Unable to read destination directory");
