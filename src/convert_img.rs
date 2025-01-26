@@ -7,7 +7,10 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use crate::{convertor::to_webp, utils::{read_file, write_file}};
+use crate::{
+    convertor::to_webp,
+    utils::{read_file, write_file},
+};
 
 pub fn convert(
     src: &PathBuf,
@@ -36,8 +39,8 @@ pub fn convert(
             let ext = path.extension().and_then(OsStr::to_str);
 
             let relative_path = path.strip_prefix(
-                        path.parent()
-                            .with_context(|| format!("Parent directory not found"))?,
+                path.parent()
+                    .with_context(|| format!("Parent directory not found"))?,
             )?;
 
             let output_path = dest.join(relative_path);
@@ -48,15 +51,21 @@ pub fn convert(
                 *skipped += 1;
                 let file = read_file(path.as_path().as_ref())?;
                 write_file(&output_path, file.into_bytes())?;
-            }
-            else if let Err(err) = convert_to_webp(&path, &output_path, 80) {
+            } else if let Err(err) = convert_to_webp(&path, &output_path, 80) {
                 failed.insert(entry.file_name(), err);
-            }
-            else {
+            } else {
                 *converted += 1;
             };
 
-            print!("\rConverted {}/{} items, Failed {}, Skipped {}", converted, total_items_count, failed.len(), skipped);
+            let total_processed = *converted + *skipped + failed.len();
+            print!(
+                "\rConverted {}, Failed {}, Skipped {}, ({}/{})",
+                converted,
+                failed.len(),
+                skipped,
+                total_processed,
+                total_items_count
+            );
             stdout().flush()?;
         }
 
@@ -65,8 +74,6 @@ pub fn convert(
 
     return Ok(());
 }
-
-
 
 fn convert_to_webp(src: &Path, dest: &Path, quality: u8) -> Result<()> {
     let img = read_file(src)?;

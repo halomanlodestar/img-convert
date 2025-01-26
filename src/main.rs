@@ -1,12 +1,12 @@
 mod config;
 mod convert_img;
-mod utils;
 mod convertor;
+mod utils;
 
 use anyhow::Error;
 use config::Config;
-use utils::count_items;
 use std::{collections::HashMap, ffi::OsString, fs};
+use utils::count_items;
 
 fn main() {
     let config = Config::new();
@@ -39,9 +39,9 @@ fn main() {
         )
         .unwrap_or_else(|err| eprintln!("Unable to Convert: {err}"));
 
-        println!("\nConverted {}/{} images ✅", converted, count);
-        println!("Skipped {} images ✅", skipped);
-        println!("Failed {}", failed.keys().len());
+        println!("\nConverted {} ✅", converted);
+        println!("Skipped {} 😴", skipped);
+        println!("Failed {} ❌", failed.keys().len());
 
         failed.into_iter().for_each(|item| {
             println!("{:#}", item.1);

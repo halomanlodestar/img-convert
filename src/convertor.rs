@@ -1,6 +1,6 @@
+use anyhow::Result;
 use image::{DynamicImage, GenericImageView};
 use webp::{Encoder, WebPMemory};
-use anyhow::Result;
 
 pub fn to_webp(img: DynamicImage, quality: u8) -> Result<WebPMemory> {
     let (width, height) = img.dimensions();
