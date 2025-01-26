@@ -1,20 +1,12 @@
 mod config;
 mod convert_img;
+mod utils;
+mod convertor;
 
 use anyhow::Error;
 use config::Config;
-use convert_img::count_items;
+use utils::count_items;
 use std::{collections::HashMap, ffi::OsString, fs};
-
-// Steps
-// 1. Parse the command-line arguments
-// 2. Create the destination directory (if it doesn't exist)
-// 3. Read the source directory
-// 4. Convert the images to WebP
-// 5. Write the converted images to the destination directory
-// 6. Print the path of the converted images
-// 7. Handle errors
-// 8. Exit the program
 
 fn main() {
     let config = Config::new();
@@ -37,8 +29,15 @@ fn main() {
         let mut failed: HashMap<OsString, Error> = HashMap::new();
         let mut skipped: usize = 0;
 
-        convert_img::convert(&src, &dest, &mut converted, &mut failed, &mut skipped, count)
-            .unwrap_or_else(|err| eprintln!("Unable to Convert: {err}"));
+        convert_img::convert(
+            &src,
+            &dest,
+            &mut converted,
+            &mut failed,
+            &mut skipped,
+            count,
+        )
+        .unwrap_or_else(|err| eprintln!("Unable to Convert: {err}"));
 
         println!("\nSuccessfully Converted {}/{} images ✅", converted, count);
         println!("Failed {}", failed.keys().len());
