@@ -39,7 +39,8 @@ fn main() {
         )
         .unwrap_or_else(|err| eprintln!("Unable to Convert: {err}"));
 
-        println!("\nSuccessfully Converted {}/{} images ✅", converted, count);
+        println!("\nConverted {}/{} images ✅", converted, count);
+        println!("Skipped {} images ✅", skipped);
         println!("Failed {}", failed.keys().len());
 
         failed.into_iter().for_each(|item| {
