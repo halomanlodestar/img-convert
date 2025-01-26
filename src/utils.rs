@@ -21,7 +21,6 @@ pub fn write_file<T: AsRef<[u8]>>(dest: &Path, data: T) -> Result<()> {
             .with_context(|| format!("Failed to create directory: {:?}", parent))?;
     }
 
-    // Write the encoded data to the output file
     fs::write(dest, data.as_ref())
         .with_context(|| format!("Failed to write WebP data to: {:?}", dest))?;
 

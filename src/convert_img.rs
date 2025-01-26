@@ -45,8 +45,6 @@ pub fn convert(
 
             let output_path = dest.join(relative_path);
 
-            // println!("{output_path:?}");
-
             if ext.is_some_and(|ext| ext.eq("webp")) {
                 *skipped += 1;
                 let file = read_file(path.as_path().as_ref())?;
@@ -58,6 +56,7 @@ pub fn convert(
             };
 
             let total_processed = *converted + *skipped + failed.len();
+
             print!(
                 "\rConverted {}, Failed {}, Skipped {}, ({}/{})",
                 converted,

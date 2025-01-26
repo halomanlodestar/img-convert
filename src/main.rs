@@ -14,12 +14,10 @@ fn main() {
     let src = fs::canonicalize(config.src).expect("Unable to read source directory");
     let dest = fs::canonicalize(config.dest).expect("Unable to read destination directory");
 
-    // Create the destination directory
     if let Err(err) = fs::create_dir_all(&dest) {
         eprintln!("Unable to create destination folder: {err}");
     }
 
-    // Read Source directory
     let total_items = count_items(&src);
 
     if let Ok(count) = total_items {
