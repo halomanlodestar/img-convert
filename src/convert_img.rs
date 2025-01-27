@@ -49,24 +49,20 @@ pub fn convert(
             let output_path = dest.join(relative_path);
             // println!("{path:?}");
 
-            if ext.is_some_and(|ext| ext.eq(format.to_string().as_str()) && ext != "avif".to_string())  {
-
+            if ext
+                .is_some_and(|ext| ext.eq(format.to_string().as_str()) && ext != "avif".to_string())
+            {
                 *skipped += 1;
                 // println!("Skipping 1");
                 let file = read_file(path.as_path().as_ref())?;
                 write_file(&output_path, file.into_bytes())?;
-
             } else if let Err(err) = match format {
-
-                ImageFormats::WebP => convert_to_webp(path.as_path(), &output_path, 80),
+                ImageFormats::Webp => convert_to_webp(path.as_path(), &output_path, 80),
                 ImageFormats::Avif => convert_to_avif(path.as_path(), &output_path, 80),
-
             } {
                 failed.insert(entry.file_name(), err);
             } else {
-
                 *converted += 1;
-            
             };
 
             let total_processed = *converted + *skipped + failed.len();

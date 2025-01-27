@@ -14,7 +14,6 @@ pub fn to_webp(img: DynamicImage, quality: u8) -> Result<WebPMemory> {
 }
 
 pub fn to_avif(img: DynamicImage, quality: u8) -> Result<EncodedImage, ravif::Error> {
-    
     let (width, height) = img.dimensions();
     let encoder = AvifEncoder::new()
         .with_quality(quality as f32)
