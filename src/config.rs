@@ -24,7 +24,6 @@ impl Config {
     pub fn new() -> Config {
         let args = Args::parse();
 
-        println!("{args:?}");
         let format = match args
             .format
             .to_string()

@@ -14,11 +14,14 @@ pub fn to_webp(img: DynamicImage, quality: u8) -> Result<WebPMemory> {
 }
 
 pub fn to_avif(img: DynamicImage, quality: u8) -> Result<EncodedImage, ravif::Error> {
+    
     let (width, height) = img.dimensions();
     let encoder = AvifEncoder::new()
         .with_quality(quality as f32)
-        .with_speed(1);
-    let data = img.as_bytes().as_rgba();
+        .with_speed(10);
+    let raw_image = img.to_rgba8().into_raw();
+    let rgba_img = raw_image.as_slice().as_rgba();
+    let data = Img::new(rgba_img, width as usize, height as usize);
 
-    return encoder.encode_rgba(Img::new(data, width as usize, height as usize));
+    return encoder.encode_rgba(data);
 }
