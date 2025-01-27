@@ -10,7 +10,7 @@ struct Args {
     #[arg(short, long)]
     dest: String,
 
-    #[arg(default_value_t=ImageFormats::WebP)]
+    #[arg(default_value_t=ImageFormats::Webp)]
     format: ImageFormats,
 }
 
@@ -33,7 +33,7 @@ impl Config {
             .as_str()
         {
             "avif" => ImageFormats::Avif,
-            "webp" => ImageFormats::WebP,
+            "webp" => ImageFormats::Webp,
             _ => panic!("Unsupported format"),
         };
 

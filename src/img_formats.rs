@@ -1,9 +1,9 @@
 use anyhow::anyhow;
 use std::str::FromStr;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, clap::ValueEnum)]
 pub enum ImageFormats {
-    WebP,
+    Webp,
     Avif,
 }
 
@@ -12,7 +12,7 @@ impl FromStr for ImageFormats {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.trim().to_lowercase().as_str() {
-            "webp" => Ok(ImageFormats::WebP),
+            "webp" => Ok(ImageFormats::Webp),
             "avif" => Ok(ImageFormats::Avif),
             _ => Err(anyhow!("Invalid Format")),
         }
@@ -22,7 +22,7 @@ impl FromStr for ImageFormats {
 impl ToString for ImageFormats {
     fn to_string(&self) -> String {
         return match self {
-            ImageFormats::WebP => String::from("webp"),
+            ImageFormats::Webp => String::from("webp"),
             ImageFormats::Avif => String::from("avif"),
         };
     }
