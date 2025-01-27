@@ -1,6 +1,7 @@
 mod config;
 mod convert_img;
 mod convertor;
+mod img_formats;
 mod utils;
 
 use anyhow::Error;
@@ -30,6 +31,7 @@ fn main() {
         convert_img::convert(
             &src,
             &dest,
+            &config.format,
             &mut converted,
             &mut failed,
             &mut skipped,

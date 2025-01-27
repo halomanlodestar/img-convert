@@ -7,10 +7,12 @@ use anyhow::{Context, Result};
 use image::{DynamicImage, ImageReader};
 
 pub fn read_file(src: &Path) -> Result<DynamicImage> {
+    
     let img = ImageReader::open(src)
-        .with_context(|| format!("Failed to open image: {:?}", src))?
-        .decode()
-        .with_context(|| format!("Failed to decode image: {:?}", src))?;
+    .with_context(|| format!("Failed to open image: {:?}", src))?
+    .decode()
+    // .map_err(|e| {eprintln!("{e}:?"); e})
+    .with_context(|| format!("Failed to decode image: {:?}", src))?;
 
     return Ok(img);
 }

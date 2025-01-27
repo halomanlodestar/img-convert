@@ -8,13 +8,15 @@ use std::{
 };
 
 use crate::{
-    convertor::to_webp,
+    convertor::{to_avif, to_webp},
+    img_formats::ImageFormats,
     utils::{read_file, write_file},
 };
 
 pub fn convert(
     src: &PathBuf,
     dest: &PathBuf,
+    format: &ImageFormats,
     converted: &mut usize,
     failed: &mut HashMap<OsString, Error>,
     skipped: &mut usize,
@@ -29,6 +31,7 @@ pub fn convert(
             convert(
                 &(entry.path()),
                 &dest.join(entry.file_name()),
+                format,
                 converted,
                 failed,
                 skipped,
@@ -36,7 +39,7 @@ pub fn convert(
             )?;
         } else {
             let path = entry.path();
-            let ext = path.extension().and_then(OsStr::to_str);
+            let ext: Option<&str> = path.extension().and_then(OsStr::to_str);
 
             let relative_path = path.strip_prefix(
                 path.parent()
@@ -44,15 +47,26 @@ pub fn convert(
             )?;
 
             let output_path = dest.join(relative_path);
+            // println!("{path:?}");
 
-            if ext.is_some_and(|ext| ext.eq("webp")) {
+            if ext.is_some_and(|ext| ext.eq(format.to_string().as_str()) && ext != "avif".to_string())  {
+
                 *skipped += 1;
+                // println!("Skipping 1");
                 let file = read_file(path.as_path().as_ref())?;
                 write_file(&output_path, file.into_bytes())?;
-            } else if let Err(err) = convert_to_webp(&path, &output_path, 80) {
+
+            } else if let Err(err) = match format {
+
+                ImageFormats::WebP => convert_to_webp(path.as_path(), &output_path, 80),
+                ImageFormats::Avif => convert_to_avif(path.as_path(), &output_path, 80),
+
+            } {
                 failed.insert(entry.file_name(), err);
             } else {
+
                 *converted += 1;
+            
             };
 
             let total_processed = *converted + *skipped + failed.len();
@@ -78,5 +92,13 @@ fn convert_to_webp(src: &Path, dest: &Path, quality: u8) -> Result<()> {
     let img = read_file(src)?;
     let webp_data = to_webp(img, quality)?;
     write_file(&dest.with_extension("webp"), webp_data.as_ref())?;
+    Ok(())
+}
+
+fn convert_to_avif(src: &Path, dest: &Path, quality: u8) -> Result<()> {
+    // println!("{src:?}");
+    let img = read_file(src)?;
+    let avif_data = to_avif(img, quality)?;
+    write_file(&dest.with_extension("avif"), avif_data.avif_file)?;
     Ok(())
 }
