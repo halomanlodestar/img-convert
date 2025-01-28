@@ -31,6 +31,7 @@ fn main() {
         convert_img::convert(
             &src,
             &dest,
+            config.quality,
             &config.format,
             &mut converted,
             &mut failed,

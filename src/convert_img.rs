@@ -16,6 +16,7 @@ use crate::{
 pub fn convert(
     src: &PathBuf,
     dest: &PathBuf,
+    quality: u8,
     format: &ImageFormats,
     converted: &mut usize,
     failed: &mut HashMap<OsString, Error>,
@@ -31,6 +32,7 @@ pub fn convert(
             convert(
                 &(entry.path()),
                 &dest.join(entry.file_name()),
+                quality,
                 format,
                 converted,
                 failed,
@@ -57,8 +59,8 @@ pub fn convert(
                 let file = read_file(path.as_path().as_ref())?;
                 write_file(&output_path, file.into_bytes())?;
             } else if let Err(err) = match format {
-                ImageFormats::Webp => convert_to_webp(path.as_path(), &output_path, 80),
-                ImageFormats::Avif => convert_to_avif(path.as_path(), &output_path, 80),
+                ImageFormats::Webp => convert_to_webp(path.as_path(), &output_path, quality),
+                ImageFormats::Avif => convert_to_avif(path.as_path(), &output_path, quality),
             } {
                 failed.insert(entry.file_name(), err);
             } else {
