@@ -10,13 +10,18 @@ struct Args {
     #[arg(short, long)]
     dest: String,
 
+    #[arg(default_value_t=75)]
+    quality: u8,
+
     #[arg(default_value_t=ImageFormats::Webp)]
     format: ImageFormats,
+
 }
 
 pub struct Config {
     pub src: String,
     pub dest: String,
+    pub quality: u8,
     pub format: ImageFormats,
 }
 
@@ -37,9 +42,12 @@ impl Config {
             _ => panic!("Unsupported format"),
         };
 
+        let quality = if args.quality > 100 {panic!("Quality must be between 0-100")} else {args.quality};
+
         return Self {
             src: args.src,
             dest: args.dest,
+            quality,
             format,
         };
     }
